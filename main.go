@@ -11,8 +11,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	dir := http.Dir(filePathRoot)
-	fileServer := http.FileServer(dir)
+	rootDir := http.Dir(filePathRoot)
+	fileServer := http.FileServer(rootDir)
 
 	mux.Handle("/", fileServer)
 

@@ -5,8 +5,8 @@ import (
 	"net/http"
 )
 
-func respondWithJson(w http.ResponseWriter, errResp interface{}, status int) {
-	jsonResp, err := json.Marshal(errResp)
+func respondWithJson(w http.ResponseWriter, resp interface{}, status int) {
+	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

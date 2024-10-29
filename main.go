@@ -21,6 +21,11 @@ func main() {
 		log.Fatal("DB_URL must be set.")
 	}
 
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		log.Fatal("PLATFORM must be set.")
+	}
+
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatalf("couldn't open db %s", err)
@@ -30,7 +35,7 @@ func main() {
 
 	const port = "8080"
 	const filePathRoot = "./"
-	apiCfg := apiConfig{fileServerHits: atomic.Int32{}, db: dbQueries}
+	apiCfg := apiConfig{fileServerHits: atomic.Int32{}, db: dbQueries, platform: platform}
 
 	mux := http.NewServeMux()
 

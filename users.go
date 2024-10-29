@@ -9,6 +9,13 @@ type User struct {
 	Email string `json:"email"`
 }
 
+type UserResponse struct {
+	Id         string `json:"id"`
+	Created_at string `json:"created_at"`
+	Updated_at string `json:"updated_at"`
+	Email      string `json:"email"`
+}
+
 func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	user := User{}
 	decoder := json.NewDecoder(r.Body)
@@ -23,5 +30,10 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJson(w, dbResponse, http.StatusCreated)
+	userResponse := UserResponse{Id: dbResponse.ID.String(),
+		Created_at: dbResponse.CreatedAt.String(),
+		Updated_at: dbResponse.UpdatedAt.String(),
+		Email:      dbResponse.Email}
+
+	respondWithJson(w, userResponse, http.StatusCreated)
 }

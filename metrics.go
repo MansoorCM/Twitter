@@ -26,7 +26,11 @@ func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
+	if cfg.platform != "dev" {
+		respondWithJson(w, []byte("Reset is only allowed in Dev environment."), http.StatusForbidden)
+	}
 	cfg.fileServerHits.Store(0)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hits reset to 0."))
+	cfg.db.Reset(r.Context())
+	respondWithJson(w, []byte("Hits reset to 0."), http.StatusOK)
+
 }

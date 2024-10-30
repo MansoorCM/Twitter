@@ -3,10 +3,14 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/MansoorCM/Twitter/internal/auth"
+	"github.com/MansoorCM/Twitter/internal/database"
 )
 
 type User struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserResponse struct {
@@ -24,7 +28,16 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbResponse, err := cfg.db.CreateUser(r.Context(), user.Email)
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "Invalid password"}, http.StatusInternalServerError)
+		return
+	}
+
+	dbResponse, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+		Email:          user.Email,
+		HashedPassword: hashedPassword,
+	})
 	if err != nil {
 		respondWithJson(w, errorResponse{Error: "failed to create user"}, http.StatusInternalServerError)
 		return

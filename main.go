@@ -26,6 +26,11 @@ func main() {
 		log.Fatal("PLATFORM must be set.")
 	}
 
+	secret := os.Getenv("SECRET")
+	if secret == "" {
+		log.Fatal("SECRET must be set.")
+	}
+
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatalf("couldn't open db %s", err)
@@ -35,7 +40,7 @@ func main() {
 
 	const port = "8080"
 	const filePathRoot = "./"
-	apiCfg := apiConfig{fileServerHits: atomic.Int32{}, db: dbQueries, platform: platform}
+	apiCfg := apiConfig{fileServerHits: atomic.Int32{}, db: dbQueries, platform: platform, jwtSecret: secret}
 
 	mux := http.NewServeMux()
 

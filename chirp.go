@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MansoorCM/Twitter/internal/auth"
 	"github.com/MansoorCM/Twitter/internal/database"
 	"github.com/google/uuid"
 )
@@ -24,6 +25,17 @@ type ChirpResponse struct {
 }
 
 func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't find JWT"}, http.StatusUnauthorized)
+		return
+	}
+	userID, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't validate JWT"}, http.StatusUnauthorized)
+		return
+	}
 
 	decoder := json.NewDecoder(r.Body)
 	chirp := Chirp{}
@@ -44,7 +56,7 @@ func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
 
 	dbResponse, err := cfg.db.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body:   chirp.Body,
-		UserID: chirp.UserID,
+		UserID: userID,
 	})
 
 	if err != nil {

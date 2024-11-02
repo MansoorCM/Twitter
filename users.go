@@ -18,6 +18,7 @@ type UserResponse struct {
 	Created_at string `json:"created_at"`
 	Updated_at string `json:"updated_at"`
 	Email      string `json:"email"`
+	Token      string `json:"token"`
 }
 
 func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {

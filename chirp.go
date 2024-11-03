@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -33,7 +34,8 @@ func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
 	}
 	userID, err := auth.ValidateJWT(token, cfg.jwtSecret)
 	if err != nil {
-		respondWithJson(w, errorResponse{Error: "couldn't validate JWT"}, http.StatusUnauthorized)
+		errorMsg := fmt.Sprintf("couldn't validate JWT %v", err)
+		respondWithJson(w, errorResponse{Error: errorMsg}, http.StatusUnauthorized)
 		return
 	}
 

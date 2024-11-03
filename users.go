@@ -20,6 +20,7 @@ type UserResponse struct {
 	Email        string `json:"email"`
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
+	IsChirpyRed  bool   `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +47,10 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userResponse := UserResponse{Id: dbResponse.ID.String(),
-		Created_at: dbResponse.CreatedAt.String(),
-		Updated_at: dbResponse.UpdatedAt.String(),
-		Email:      dbResponse.Email}
+		Created_at:  dbResponse.CreatedAt.String(),
+		Updated_at:  dbResponse.UpdatedAt.String(),
+		Email:       dbResponse.Email,
+		IsChirpyRed: dbResponse.IsChirpyRed}
 
 	respondWithJson(w, userResponse, http.StatusCreated)
 }
@@ -92,9 +94,10 @@ func (cfg *apiConfig) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userResponse := UserResponse{Id: userDb.ID.String(),
-		Created_at: userDb.CreatedAt.String(),
-		Updated_at: userDb.UpdatedAt.String(),
-		Email:      userDb.Email}
+		Created_at:  userDb.CreatedAt.String(),
+		Updated_at:  userDb.UpdatedAt.String(),
+		Email:       userDb.Email,
+		IsChirpyRed: userDb.IsChirpyRed}
 
 	respondWithJson(w, userResponse, http.StatusOK)
 }

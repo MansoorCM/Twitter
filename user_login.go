@@ -64,7 +64,8 @@ func (cfg *apiConfig) userLogin(w http.ResponseWriter, r *http.Request) {
 		Updated_at:   user.UpdatedAt.String(),
 		Email:        user.Email,
 		Token:        accessToken,
-		RefreshToken: refreshToken}
+		RefreshToken: refreshToken,
+		IsChirpyRed:  user.IsChirpyRed}
 
 	respondWithJson(w, userResponse, http.StatusOK)
 }

@@ -52,3 +52,49 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJson(w, userResponse, http.StatusCreated)
 }
+
+func (cfg *apiConfig) updateUser(w http.ResponseWriter, r *http.Request) {
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't find JWT"}, http.StatusUnauthorized)
+		return
+	}
+
+	userId, err := auth.ValidateJWT(token, cfg.jwtSecret)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't validate JWT"}, http.StatusUnauthorized)
+		return
+	}
+
+	user := User{}
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&user); err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't decode parameters"}, http.StatusBadRequest)
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "invalid password"}, http.StatusBadRequest)
+		return
+	}
+
+	userDb, err := cfg.db.UpdateUser(r.Context(),
+		database.UpdateUserParams{
+			Email:          user.Email,
+			HashedPassword: hashedPassword,
+			ID:             userId})
+
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "failed to update user"}, http.StatusInternalServerError)
+		return
+	}
+
+	userResponse := UserResponse{Id: userDb.ID.String(),
+		Created_at: userDb.CreatedAt.String(),
+		Updated_at: userDb.UpdatedAt.String(),
+		Email:      userDb.Email}
+
+	respondWithJson(w, userResponse, http.StatusOK)
+}

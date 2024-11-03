@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/MansoorCM/Twitter/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,17 @@ type WebHookResponse struct {
 
 func (cfg *apiConfig) upgradeUserToRed(w http.ResponseWriter, r *http.Request) {
 
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithJson(w, errorResponse{Error: "couldn't find api key"}, http.StatusUnauthorized)
+		return
+	}
+
+	if apiKey != cfg.polkaKey {
+		respondWithJson(w, errorResponse{Error: "invalid api key"}, http.StatusUnauthorized)
+		return
+	}
+
 	webhookParams := WebHookResponse{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&webhookParams); err != nil {
@@ -32,7 +44,7 @@ func (cfg *apiConfig) upgradeUserToRed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := cfg.db.UpgradeUserToRed(r.Context(), webhookParams.Data.UserId)
+	_, err = cfg.db.UpgradeUserToRed(r.Context(), webhookParams.Data.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			respondWithJson(w, errorResponse{Error: "couldn't find user"}, http.StatusNotFound)

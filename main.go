@@ -31,6 +31,11 @@ func main() {
 		log.Fatal("SECRET must be set.")
 	}
 
+	polkaKey := os.Getenv("POLKA_KEY")
+	if polkaKey == "" {
+		log.Fatal("POLKA_KEY must be set.")
+	}
+
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatalf("couldn't open db %s", err)
@@ -40,7 +45,11 @@ func main() {
 
 	const port = "8080"
 	const filePathRoot = "./"
-	apiCfg := apiConfig{fileServerHits: atomic.Int32{}, db: dbQueries, platform: platform, jwtSecret: secret}
+	apiCfg := apiConfig{fileServerHits: atomic.Int32{},
+		db:        dbQueries,
+		platform:  platform,
+		jwtSecret: secret,
+		polkaKey:  polkaKey}
 
 	mux := http.NewServeMux()
 

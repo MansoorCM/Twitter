@@ -11,6 +11,7 @@ import (
 func (cfg *apiConfig) getChirps(w http.ResponseWriter, r *http.Request) {
 
 	authorId := r.URL.Query().Get("author_id")
+	sortOrder := r.URL.Query().Get("sort")
 	var chirpsFromDb []database.Chirp
 	var err error
 
@@ -35,6 +36,10 @@ func (cfg *apiConfig) getChirps(w http.ResponseWriter, r *http.Request) {
 			UserID:    dbChirp.UserID,
 			Body:      dbChirp.Body}
 		chirps[i] = chirp
+	}
+
+	if sortOrder == "desc" {
+		reverseList(chirps)
 	}
 
 	respondWithJson(w, chirps, http.StatusOK)
@@ -105,4 +110,10 @@ func (cfg *apiConfig) deleteChirp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJson(w, nil, http.StatusNoContent)
+}
+
+func reverseList[T any](items []T) {
+	for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
+		items[i], items[j] = items[j], items[i]
+	}
 }
